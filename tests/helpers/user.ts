@@ -1,0 +1,30 @@
+import { expect, type Page } from "@playwright/test";
+
+const registerNameInput = (page: Page) => page.getByLabel("Имя");
+const registerEmailInput = (page: Page) => page.getByLabel("Email");
+const registerPasswordInput = (page: Page) => page.getByLabel("Пароль");
+const registerSubmitButton = (page: Page) => page.getByRole("button", { name: "Зарегистрироваться" });
+
+export type TestUser = {
+    name: string;
+    email: string;
+    password: string;
+  };
+  
+  export function makeUser(role: string, runId: number): TestUser {
+    const suffix = Math.random().toString(36).slice(2, 8);
+    return {
+      name: `${role} Автотест`,
+      email: `${role}-${runId}-${suffix}@example.com`,
+      password: "testpass123",
+    };
+  }
+  
+  export async function registerUser(page: Page, user: TestUser) {
+    await page.goto('/pomidorqa/auth/register');
+    await registerNameInput(page).fill(user.name);
+    await registerEmailInput(page).fill(user.email);
+    await registerPasswordInput(page).fill(user.password);
+    await registerSubmitButton(page).click();
+    await expect(page).toHaveURL(/\/pomidorqa\/?$/);
+  }
